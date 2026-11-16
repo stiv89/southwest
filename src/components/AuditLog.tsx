@@ -13,7 +13,7 @@ const KIND_LABEL: Record<AuditEvent["kind"], string> = {
 
 export function AuditLog({ events }: { events: AuditEvent[] }) {
   return (
-    <section className="card span" aria-labelledby="audit-heading">
+    <section id="audit" className="card card--panel span" aria-labelledby="audit-heading">
       <h2 id="audit-heading">Audit log</h2>
       {events.length === 0 ? (
         <p className="empty">No events yet. Select the Ground Stop scenario and run the agents.</p>

@@ -1,6 +1,18 @@
 import { runCustomerService } from "../agents/customer-service/run";
+import {
+  runCommunications,
+  runComplianceSafety,
+  runMaintenance,
+  runScheduling,
+  type ExtendedAgentRequest,
+} from "../agents/extended/run";
 import { runFlightOperations } from "../agents/flight-operations/run";
 import { appendAudit } from "../lib/audit";
+import {
+  createInitialAgentSlots,
+  EXTENDED_AGENT_KEYS,
+  EXTENDED_AGENT_LABELS,
+} from "../lib/agent-slots";
 import { OUTAGE_TOOL_NAME } from "../lib/constants";
 import { scenario } from "../scenarios/mci-ground-stop";
 import { unique } from "../lib/unique";
@@ -9,8 +21,10 @@ import type { AgentNarrative } from "../lib/puter";
 import type {
   AgentEvent,
   AgentResult,
+  AgentRunState,
   ConsolidatedRecommendation,
   DemoSnapshot,
+  ExtendedAgentKey,
 } from "../types/contracts";
 import type { ToolContext } from "../tools/errors";
 
@@ -41,6 +55,7 @@ export function createInitialSnapshot(): DemoSnapshot {
     csHistory: [],
     opsResult: null,
     csResult: null,
+    agentSlots: createInitialAgentSlots(),
     recommendation: null,
     decision: "none",
     outcome: null,
@@ -75,6 +90,20 @@ export function selectScenario(
       detail: scenario.sourceLabel,
     },
   );
+}
+
+export function recordIntakeMessage(
+  snapshot: DemoSnapshot,
+  userText: string,
+  assistantReply: string,
+  now: () => string = () => new Date().toISOString(),
+): DemoSnapshot {
+  return appendAudit(snapshot, now(), {
+    kind: "agent",
+    simulated: true,
+    message: `Operations intake: ${userText.trim().slice(0, 140)}`,
+    detail: assistantReply,
+  });
 }
 
 export function setOutageEnabled(snapshot: DemoSnapshot, enabled: boolean): DemoSnapshot {
@@ -158,20 +187,38 @@ function applyEvent(
   });
 }
 
-function buildRecommendation(ops: AgentResult, cs: AgentResult): ConsolidatedRecommendation {
+function buildRecommendation(
+  ops: AgentResult,
+  cs: AgentResult,
+  extended: AgentResult[],
+): ConsolidatedRecommendation {
   const usedPuter = ops.narrativeSource === "puter" || cs.narrativeSource === "puter";
+  const agentSupport = extended.map((result) => ({
+    agent: result.agent,
+    summary: result.summary,
+    recommendedNextStep: result.recommendedNextStep,
+  }));
+  const supportBlock = extended.map((result) => result.summary).join("\n\n");
+  const summaryParts = [ops.summary, cs.summary];
+  if (supportBlock) summaryParts.push(supportBlock);
   return {
     lead: `Review ${ops.subjectId} under the MCI Ground Stop. Human approval is required before any simulated action.`,
-    summary: usedPuter ? `${ops.summary}\n\n${cs.summary}` : ops.summary,
+    summary: usedPuter ? `${ops.summary}\n\n${cs.summary}${supportBlock ? `\n\n${supportBlock}` : ""}` : summaryParts.join("\n\n"),
     operationalOptions: ops.options,
     customerOptions: cs.options,
-    knownFacts: unique([...ops.knownFacts, ...cs.knownFacts]),
-    unknowns: unique([...ops.unknowns, ...cs.unknowns]),
+    knownFacts: unique([...ops.knownFacts, ...cs.knownFacts, ...extended.flatMap((r) => r.knownFacts)]),
+    unknowns: unique([...ops.unknowns, ...cs.unknowns, ...extended.flatMap((r) => r.unknowns)]),
     passengerConsequences: cs.passengerConsequences,
     requiredAssistance: cs.requiredAssistance,
     draftNotification: cs.draftNotification,
+    agentSupport,
     requiresHumanApproval: true,
-    sources: unique([...ops.sources, ...cs.sources, "Educational simulation — no live feed"]),
+    sources: unique([
+      ...ops.sources,
+      ...cs.sources,
+      ...extended.flatMap((r) => r.sources),
+      "Educational simulation — no live feed",
+    ]),
     narrativeSource: usedPuter ? "puter" : "tools",
     narrativeModel: ops.narrativeModel || cs.narrativeModel,
   };
@@ -289,6 +336,71 @@ export function rejectPlan(
   });
 }
 
+function applySlotEvent(
+  snapshot: DemoSnapshot,
+  key: ExtendedAgentKey,
+  event: AgentEvent,
+  now: string,
+): DemoSnapshot {
+  const label = EXTENDED_AGENT_LABELS[key];
+  const slot = snapshot.agentSlots[key];
+  if (event.type === "status") {
+    return {
+      ...snapshot,
+      agentSlots: {
+        ...snapshot.agentSlots,
+        [key]: {
+          ...slot,
+          runState: "Running",
+          action: event.action,
+          toolName: event.toolName,
+          toolSummary: event.toolName ? "Waiting for the tool result." : slot.toolSummary,
+        },
+      },
+    };
+  }
+
+  const failed = !event.record.ok;
+  const runState: AgentRunState = failed ? "Error" : "Running";
+  const nextSlot = {
+    ...slot,
+    runState,
+    action: failed ? `Tool failed: ${event.record.name}` : `Observed ${event.record.name}`,
+    toolName: event.record.name,
+    toolSummary: event.record.summary,
+    history: [...slot.history, event.record],
+  };
+  const next = {
+    ...snapshot,
+    agentSlots: { ...snapshot.agentSlots, [key]: nextSlot },
+  };
+  return appendAudit(next, now, {
+    kind: failed ? "error" : "tool",
+    simulated: true,
+    message: failed ? `${label} failed ${event.record.name}.` : `${label} called ${event.record.name}.`,
+    detail: event.record.summary,
+  });
+}
+
+async function playSlot(
+  snapshot: DemoSnapshot,
+  key: ExtendedAgentKey,
+  generator: Generator<AgentEvent, AgentResult>,
+  delayMs: number,
+  now: () => string,
+  onUpdate: (snapshot: DemoSnapshot) => void,
+): Promise<{ snapshot: DemoSnapshot; result: AgentResult }> {
+  let current = snapshot;
+  let step = generator.next();
+  while (!step.done) {
+    current = applySlotEvent(current, key, step.value, now());
+    onUpdate(current);
+    await wait(delayMs);
+    step = generator.next();
+  }
+  return { snapshot: current, result: step.value };
+}
+
 async function play(
   snapshot: DemoSnapshot,
   agent: "ops" | "cs",
@@ -341,11 +453,23 @@ export async function runAgents(start: DemoSnapshot, options: RunOptions = {}): 
     csToolName: null,
     opsToolSummary: null,
     csToolSummary: null,
+    agentSlots: (() => {
+      const slots = createInitialAgentSlots();
+      for (const key of EXTENDED_AGENT_KEYS) {
+        slots[key] = {
+          ...slots[key],
+          runState: "Waiting",
+          action: "Queued after customer service",
+        };
+      }
+      return slots;
+    })(),
   };
   snapshot = appendAudit(snapshot, now(), {
     kind: "agent",
     simulated: true,
-    message: "Orchestrator started Flight Operations Agent. Customer Service runs second.",
+    message:
+      "Orchestrator started the agent sequence: route planning, customer service, then extended support agents.",
     detail: outageTool
       ? `Simulated outage armed for ${outageTool}.`
       : "No tool outage is armed.",
@@ -446,13 +570,79 @@ export async function runAgents(start: DemoSnapshot, options: RunOptions = {}): 
     return snapshot;
   }
 
-  const recommendation = buildRecommendation(opsNarrated.result, csNarrated.result);
+  const extendedRequest: ExtendedAgentRequest = {
+    ctx,
+    scenarioId: opsNarrated.result.scenarioId,
+    flightId: opsNarrated.result.subjectId,
+    airport: scenario.airport,
+    situation: opsNarrated.result.situation,
+    optionLabels: opsNarrated.result.options.map((option) => option.label),
+  };
+
+  const extendedResults: AgentResult[] = [];
+  const extendedRuns: {
+    key: ExtendedAgentKey;
+    run: () => Generator<AgentEvent, AgentResult>;
+  }[] = [
+    { key: "maintenance", run: () => runMaintenance(extendedRequest) },
+    { key: "scheduling", run: () => runScheduling(extendedRequest) },
+    { key: "communications", run: () => runCommunications(extendedRequest) },
+    { key: "compliance-safety", run: () => runComplianceSafety(extendedRequest) },
+  ];
+
+  for (const item of extendedRuns) {
+    const label = EXTENDED_AGENT_LABELS[item.key];
+    snapshot = {
+      ...snapshot,
+      agentSlots: {
+        ...snapshot.agentSlots,
+        [item.key]: {
+          ...snapshot.agentSlots[item.key],
+          runState: "Running",
+          action: "Receiving consolidated context from orchestrator",
+        },
+      },
+    };
+    snapshot = appendAudit(snapshot, now(), {
+      kind: "agent",
+      simulated: true,
+      message: `Orchestrator started ${label}.`,
+      detail: `Flight ${extendedRequest.flightId} at ${extendedRequest.airport}.`,
+    });
+    onUpdate(snapshot);
+    await wait(delayMs);
+
+    const played = await playSlot(snapshot, item.key, item.run(), delayMs, now, onUpdate);
+    const result = played.result;
+    extendedResults.push(result);
+    snapshot = {
+      ...played.snapshot,
+      agentSlots: {
+        ...played.snapshot.agentSlots,
+        [item.key]: {
+          ...played.snapshot.agentSlots[item.key],
+          result,
+          runState: result.status === "error" ? "Error" : "Complete",
+          action: stopAction(result),
+        },
+      },
+    };
+    snapshot = appendAudit(snapshot, now(), {
+      kind: result.status === "error" ? "error" : "agent",
+      simulated: true,
+      message: `${label} ${stopAction(result)}`,
+      detail: result.summary,
+    });
+    onUpdate(snapshot);
+  }
+
+  const recommendation = buildRecommendation(opsNarrated.result, csNarrated.result, extendedResults);
   snapshot = { ...snapshot, recommendation, phase: "awaiting_decision" };
   snapshot = appendAudit(snapshot, now(), {
     kind: "recommendation",
     simulated: true,
     message: "Orchestrator consolidated a recommendation that requires human approval.",
-    detail: `${recommendation.lead} Unknowns recorded: ${recommendation.unknowns.length}.`,
+    detail: `${recommendation.lead} Unknowns recorded: ${recommendation.unknowns.length}. Support agents: ${extendedResults.length}.`,
   });
   onUpdate(snapshot);
   return snapshot;

@@ -42,9 +42,13 @@ Puter (`gpt-5.4-nano`) only writes the narrative after the tools return. It cann
 ## Layout
 
 ```text
-src/agents/            Flight Operations and Customer Service loops
+src/agents/            Flight Operations, Customer Service, and the extended agent loops
 src/orchestration/     Order, handoff, approval gate, reset
 src/tools/             Read-only scenario and mock tools
+src/components/        Screens: RoleHome, CaseDesk, agents, decision, audit
+assets/brand/          Original logo and app icon
+public/brand/          Logo served in the sidebar
+public/icons/          Favicon and install icons
 data/mock/             Labeled classroom data
 data/source/           Place for local course files; not published here
 ```

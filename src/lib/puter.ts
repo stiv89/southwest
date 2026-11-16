@@ -116,6 +116,40 @@ export function parseNarrative(text: string): Pick<AgentNarrative, "summary" | "
   }
 }
 
+export async function intakeProblemWithPuter(
+  message: string,
+  context: { phase: string; scenarioSelected: boolean },
+): Promise<string> {
+  await loadPuter();
+  const chat = puterClient()?.ai?.chat;
+  if (!chat) throw new Error("Puter.js chat is unavailable.");
+  const response = await chat(
+    [
+      {
+        role: "system",
+        content:
+          "You are the SouthwestAdmin classroom intake assistant. The user describes an operational problem. Acknowledge it in 2-4 short sentences. Map disruptions at MCI, ground stops, or flight A31 to the built-in Ground Stop demo scenario and tell them to use Run Agents after loading it. Never claim authority to divert, dispatch, message passengers, or declare safety. If facts are missing, say so. Reply in plain text, not JSON.",
+      },
+      {
+        role: "user",
+        content: JSON.stringify({
+          userProblem: message,
+          demoPhase: context.phase,
+          scenarioAlreadySelected: context.scenarioSelected,
+          availableDemo: "MCI Ground Stop 12:20 PM — Flight A31 DEN→MCI",
+        }),
+      },
+    ],
+    { model: PUTER_MODEL, temperature: 0.35, normalize: true },
+  );
+  const text = textFrom(response);
+  if (!text) throw new Error("Puter.js returned an empty intake response.");
+  if (UNSAFE_NARRATIVE.test(text)) {
+    throw new Error("Puter.js returned phrasing that is not allowed in this classroom demo.");
+  }
+  return text;
+}
+
 export async function narrateWithPuter(result: AgentResult): Promise<AgentNarrative | null> {
   await loadPuter();
   const chat = puterClient()?.ai?.chat;

@@ -1,4 +1,21 @@
-export type AgentId = "flight-operations" | "customer-service";
+export type AgentId =
+  | "flight-operations"
+  | "customer-service"
+  | "scheduling"
+  | "communications"
+  | "compliance-safety"
+  | "maintenance";
+
+export type ExtendedAgentKey = "scheduling" | "communications" | "compliance-safety" | "maintenance";
+
+export interface AgentSlot {
+  runState: AgentRunState;
+  action: string;
+  toolName: string | null;
+  toolSummary: string | null;
+  history: ToolCallRecord[];
+  result: AgentResult | null;
+}
 
 export type AgentResultStatus = "needs_human_review" | "error";
 
@@ -70,6 +87,7 @@ export interface ConsolidatedRecommendation {
   passengerConsequences: string;
   requiredAssistance: string;
   draftNotification: string;
+  agentSupport: { agent: AgentId; summary: string; recommendedNextStep: string }[];
   requiresHumanApproval: true;
   sources: string[];
   narrativeSource: "puter" | "tools";
@@ -101,6 +119,7 @@ export interface DemoSnapshot {
   csHistory: ToolCallRecord[];
   opsResult: AgentResult | null;
   csResult: AgentResult | null;
+  agentSlots: Record<ExtendedAgentKey, AgentSlot>;
   recommendation: ConsolidatedRecommendation | null;
   decision: DecisionState;
   outcome: string | null;
