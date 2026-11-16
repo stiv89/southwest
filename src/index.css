@@ -25,7 +25,6 @@
   --glass-border: rgba(255, 255, 255, 0.82);
   --sidebar-inset: 12px;
   --sidebar-panel-width: 212px;
-  --sidebar-width: calc(var(--sidebar-panel-width) + var(--sidebar-inset) * 2);
   font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   color: var(--ink);
   background: var(--bg);
@@ -62,6 +61,9 @@ button:disabled {
 }
 
 .app-shell {
+  /* Derive here so collapse/expand re-resolves against --sidebar-panel-width.
+     One inset only: sidebar sits at left:inset, so main starts at its right edge. */
+  --sidebar-width: calc(var(--sidebar-panel-width) + var(--sidebar-inset));
   min-height: 100vh;
 }
 
@@ -81,6 +83,7 @@ button:disabled {
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
+  align-items: center;
   scroll-behavior: smooth;
   transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   background: #e9ebf0;
@@ -701,10 +704,13 @@ button:disabled {
   position: sticky;
   top: 0;
   z-index: 30;
+  width: 100%;
+  max-width: 1320px;
   padding: 10px 20px 0;
   background: #e9ebf0;
   border-bottom: 1px solid #dde1e8;
   pointer-events: none;
+  box-sizing: border-box;
 }
 
 .dashboard-chrome .topbar {
@@ -712,6 +718,8 @@ button:disabled {
 }
 
 .dashboard-frame {
+  width: calc(100% - 40px);
+  max-width: 1280px;
   margin: 0 20px 24px;
   padding: 18px;
   border-radius: 28px;
@@ -719,6 +727,7 @@ button:disabled {
   border: 1px solid rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(22px);
   box-shadow: 0 28px 60px rgba(18, 28, 45, 0.08);
+  box-sizing: border-box;
 }
 
 .top-nav {
@@ -880,11 +889,9 @@ button:disabled {
 }
 
 .topbar-inner,
-.dashboard-chrome,
 .banner,
 .dashboard-metrics,
 .kpi-strip,
-.dashboard-frame,
 .layout {
   max-width: 1320px;
   width: 100%;
@@ -1691,6 +1698,9 @@ details {
   :root {
     --sidebar-inset: 0px;
     --sidebar-panel-width: 100%;
+  }
+
+  .app-shell {
     --sidebar-width: 100%;
   }
 
@@ -1728,6 +1738,12 @@ details {
     height: auto;
     min-height: 100vh;
     overflow-y: visible;
+    align-items: stretch;
+  }
+
+  .dashboard-frame {
+    width: calc(100% - 24px);
+    margin: 0 12px 24px;
   }
 
   .sidebar.is-collapsed .sidebar-brand-text,
