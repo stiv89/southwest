@@ -1,0 +1,7 @@
+{
+  "source": "unavailable",
+  "inventoryKnown": false,
+  "hotels": null,
+  "groundTransport": null,
+  "reason": "Transportation hotels.xlsx was not in the project workspace. Hotel and ground transportation inventory is unknown. Nothing is reserved."
+}

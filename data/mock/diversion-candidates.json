@@ -1,0 +1,65 @@
+{
+  "source": "mock",
+  "disclaimer": "Classroom simulation only. Null fields are unknown. They are not operational clearances, flight times, or airport acceptances.",
+  "holdOption": {
+    "id": "await-ground-stop-update",
+    "label": "Hold A31 and wait for a validated Ground Stop update"
+  },
+  "candidates": [
+    {
+      "id": "alt-STL",
+      "airport": "STL",
+      "name": "St. Louis Lambert International Airport",
+      "note": "Geographic name only. Not a statement of suitability.",
+      "verifiedHandlingCapacity": null,
+      "verifiedRunwaySuitability": null,
+      "verifiedFlightTimeMinutes": null,
+      "verifiedFuelRequired": null,
+      "verifiedGroundHandling": null
+    },
+    {
+      "id": "alt-OMA",
+      "airport": "OMA",
+      "name": "Eppley Airfield",
+      "note": "Geographic name only. Not a statement of suitability.",
+      "verifiedHandlingCapacity": null,
+      "verifiedRunwaySuitability": null,
+      "verifiedFlightTimeMinutes": null,
+      "verifiedFuelRequired": null,
+      "verifiedGroundHandling": null
+    },
+    {
+      "id": "alt-DSM",
+      "airport": "DSM",
+      "name": "Des Moines International Airport",
+      "note": "Geographic name only. Not a statement of suitability.",
+      "verifiedHandlingCapacity": null,
+      "verifiedRunwaySuitability": null,
+      "verifiedFlightTimeMinutes": null,
+      "verifiedFuelRequired": null,
+      "verifiedGroundHandling": null
+    },
+    {
+      "id": "alt-ICT",
+      "airport": "ICT",
+      "name": "Wichita Dwight D. Eisenhower National Airport",
+      "note": "Geographic name only. Not a statement of suitability.",
+      "verifiedHandlingCapacity": null,
+      "verifiedRunwaySuitability": null,
+      "verifiedFlightTimeMinutes": null,
+      "verifiedFuelRequired": null,
+      "verifiedGroundHandling": null
+    },
+    {
+      "id": "alt-TUL",
+      "airport": "TUL",
+      "name": "Tulsa International Airport",
+      "note": "Geographic name only. Not a statement of suitability.",
+      "verifiedHandlingCapacity": null,
+      "verifiedRunwaySuitability": null,
+      "verifiedFlightTimeMinutes": null,
+      "verifiedFuelRequired": null,
+      "verifiedGroundHandling": null
+    }
+  ]
+}

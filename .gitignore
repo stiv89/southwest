@@ -1,0 +1,10 @@
+node_modules
+dist
+.tools
+.DS_Store
+*.local
+coverage
+
+# Course handouts and personal notes stay on this machine.
+*.pdf
+*.docx
