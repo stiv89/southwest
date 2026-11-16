@@ -3,6 +3,11 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    watch: {
+      ignored: ["**/*.{jpg,jpeg,png,gif,webp}"],
+    },
+  },
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],

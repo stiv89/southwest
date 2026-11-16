@@ -1,4 +1,7 @@
+import { EXTENDED_AGENT_KEYS, EXTENDED_AGENT_LABELS } from "../lib/agent-slots";
+import { AGENT_ROSTER, liveAgentCount, orchestratorPhaseLabel } from "../lib/agent-roster";
 import type { DemoSnapshot, ToolCallRecord } from "../types/contracts";
+import { AgentRoster } from "./AgentRoster";
 
 function History({ records }: { records: ToolCallRecord[] }) {
   if (records.length === 0) return <p className="empty">No tool calls yet.</p>;
@@ -66,12 +69,29 @@ function AgentCard({
 }
 
 export function AgentActivity({ snapshot }: { snapshot: DemoSnapshot }) {
+  const orchestratorEntry = AGENT_ROSTER.find((entry) => entry.id === "orchestrator");
+
   return (
-    <section className="card" aria-labelledby="agents-heading">
-      <h2 id="agents-heading">Agent activity</h2>
-      <div className="agent-grid">
+    <section id="agents" className="card card--panel" aria-labelledby="agents-heading">
+      <h2 id="agents-heading">Agentic workforce</h2>
+      <p className="lede">{liveAgentCount()}</p>
+
+      <article className="orchestrator-banner" aria-label="Orchestrator status">
+        <div>
+          <h3>{orchestratorEntry?.name ?? "Orchestrator"}</h3>
+          <p className="orchestrator-phase" data-testid="orchestrator-phase">
+            {orchestratorPhaseLabel(snapshot.phase)}
+          </p>
+        </div>
+        <p className="orchestrator-copy">
+          {orchestratorEntry?.tagline ?? "Coordinates agents and escalates to the human gate."}
+        </p>
+      </article>
+
+      <h3>Live execution</h3>
+      <div className="agent-grid agent-grid--wide">
         <AgentCard
-          title="Flight Operations Agent"
+          title="Aircraft / route planning"
           stateId="ops-status"
           runState={snapshot.opsRunState}
           action={snapshot.opsAction}
@@ -81,7 +101,7 @@ export function AgentActivity({ snapshot }: { snapshot: DemoSnapshot }) {
           historyId="ops-history"
         />
         <AgentCard
-          title="Customer Service Agent"
+          title="Customer Service (Southwest passengers)"
           stateId="cs-status"
           runState={snapshot.csRunState}
           action={snapshot.csAction}
@@ -90,7 +110,26 @@ export function AgentActivity({ snapshot }: { snapshot: DemoSnapshot }) {
           history={snapshot.csHistory}
           historyId="cs-history"
         />
+        {EXTENDED_AGENT_KEYS.map((key) => {
+          const slot = snapshot.agentSlots[key];
+          const testId = key === "compliance-safety" ? "compliance-status" : `${key}-status`;
+          return (
+            <AgentCard
+              key={key}
+              title={EXTENDED_AGENT_LABELS[key]}
+              stateId={testId}
+              runState={slot.runState}
+              action={slot.action}
+              toolName={slot.toolName}
+              toolSummary={slot.toolSummary}
+              history={slot.history}
+              historyId={`${key}-history`}
+            />
+          );
+        })}
       </div>
+
+      <AgentRoster />
     </section>
   );
 }

@@ -101,6 +101,13 @@ describe("MCI ground stop demo", () => {
     expect(
       snapshot.audit.some((event) => event.message.includes(`passed ${ops?.options.length}`)),
     ).toBe(true);
+    expect(recommendation?.agentSupport).toHaveLength(4);
+    expect(snapshot.agentSlots.communications.history.map((call) => call.name)).toContain(
+      "draftInternalComms",
+    );
+    expect(snapshot.agentSlots.maintenance.history.map((call) => call.name)).toContain(
+      "getMaintenanceReadiness",
+    );
     expect(JSON.stringify(recommendation).toLowerCase()).not.toContain("safe to divert");
   });
 

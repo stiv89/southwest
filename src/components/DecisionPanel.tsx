@@ -50,7 +50,7 @@ export function DecisionPanel({
         : "";
 
   return (
-    <section className="card" aria-labelledby="decision-heading">
+    <section id="decision" className="card card--panel" aria-labelledby="decision-heading">
       <h2 id="decision-heading">Decision</h2>
       <p className="lede">AI recommendation, then a human decision, then a simulated record only.</p>
       {snapshot.outcome && (
@@ -103,6 +103,20 @@ export function DecisionPanel({
           <h3>Draft notification</h3>
           <pre className="draft">{recommendation.draftNotification}</pre>
           <p className="source-line">Draft only. Approval does not send it.</p>
+          {recommendation.agentSupport.length > 0 && (
+            <>
+              <h3>Support agent findings</h3>
+              <ul className="agent-support-list">
+                {recommendation.agentSupport.map((entry) => (
+                  <li key={entry.agent}>
+                    <strong>{entry.agent.replace(/-/g, " ")}</strong>
+                    <p>{entry.summary}</p>
+                    <p className="source-line">{entry.recommendedNextStep}</p>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
           <p className="source-line">Sources: {recommendation.sources.join(" · ")}</p>
         </div>
       ) : (

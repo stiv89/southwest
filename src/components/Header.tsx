@@ -1,12 +1,33 @@
 import type { DashboardModel } from "../orchestration/dashboard";
 
-export function Header({ model, onReset }: { model: DashboardModel; onReset: () => void }) {
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "OP";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+}
+
+export function Header({
+  model,
+  approver,
+  role,
+  clock,
+  deskMode,
+  onOpenProfile,
+}: {
+  model: DashboardModel;
+  approver: string;
+  role: string;
+  clock: string;
+  deskMode: "normal" | "late" | "ground-stop";
+  onOpenProfile: () => void;
+}) {
   return (
-    <header className="header">
-      <div className="header-inner">
+    <header className="topbar topbar--open">
+      <div className="topbar-inner">
         <div>
-          <p className="eyebrow">Southwest Agentic Operations / MCI</p>
-          <h1>Operations Control</h1>
+          <p className="eyebrow">MCI Operations Desk · {role}</p>
+          <h1>SouthwestAdmin</h1>
           <p className="header-scenario" data-testid="scenario-label">
             {model.scenarioLabel}
           </p>
@@ -14,16 +35,21 @@ export function Header({ model, onReset }: { model: DashboardModel; onReset: () 
         <div className="header-status">
           <div>
             <span className="meta-label">Simulated time</span>
-            <strong data-testid="simulated-time">{model.simulatedTime}</strong>
+            <strong data-testid="simulated-time">{model.selected ? clock : model.simulatedTime}</strong>
           </div>
           <div>
             <span className="meta-label">Status</span>
-            <strong className={`status-pill status-${model.status.toLowerCase()}`} data-testid="status-indicator">
-              {model.status}
+            <strong className={`header-status-value status-${(deskMode === "ground-stop" ? "grounded" : "normal")}`} data-testid="status-indicator">
+              {deskMode === "ground-stop" ? "Grounded" : "Normal"}
             </strong>
           </div>
-          <button type="button" className="button ghost" data-testid="reset" onClick={onReset}>
-            Reset Demo
+          <button
+            type="button"
+            className="header-avatar header-avatar--btn"
+            aria-label={`${approver}. Open profile and decision desk.`}
+            onClick={onOpenProfile}
+          >
+            {initials(approver)}
           </button>
         </div>
       </div>
