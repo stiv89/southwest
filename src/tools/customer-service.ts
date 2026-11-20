@@ -1,4 +1,4 @@
-import { assistance, scenario } from "../lib/mock-data";
+import { assistance, scenario, type AssistanceData } from "../lib/mock-data";
 import { assertNoOutage, ToolError, type ToolContext } from "./errors";
 
 export interface PassengerImpact {
@@ -17,14 +17,7 @@ export interface ConnectionImpact {
   risks: string[];
 }
 
-export interface AssistanceAvailability {
-  airportCode: string;
-  source: "unavailable";
-  inventoryKnown: false;
-  hotels: null;
-  groundTransport: null;
-  reason: string;
-}
+export type AssistanceAvailability = AssistanceData & { airportCode: string };
 
 export interface CustomerDraft {
   flightId: string;

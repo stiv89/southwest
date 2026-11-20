@@ -1,3 +1,4 @@
+import { scenario } from "./mock-data";
 import type { DemoRole } from "./shared-case";
 
 export type DeskMode = "normal" | "late" | "ground-stop";
@@ -244,7 +245,12 @@ export function recentChanges(mode: DeskMode, gate: GateRevision | null): Recent
   if (mode === "ground-stop") {
     return [
       { id: "stop", time: "12:20", flight: "A31", text: "Ground stop at MCI. A31 is airborne from DEN and needs review." },
-      { id: "facts", time: "12:20", flight: "A31", text: "158 passengers, 42 connections, 3 wheelchair. Alternates not verified." },
+      {
+        id: "facts",
+        time: "12:20",
+        flight: "A31",
+        text: `${scenario.passengers} passengers, ${scenario.connectingPassengers} connections, ${scenario.wheelchairPassengers} wheelchair. Alternates not verified.`,
+      },
     ];
   }
   const rows: RecentChange[] = [

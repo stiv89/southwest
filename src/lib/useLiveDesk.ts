@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { scenario } from "./mock-data";
 
 const PINGS = [
   "A31 DEN → MCI is still airborne. The MCI ground stop is in effect.",
-  "Track update for A31. 158 passengers, 42 connecting, 3 wheelchair.",
+  `Track update for A31. ${scenario.passengers} passengers, ${scenario.connectingPassengers} connecting, ${scenario.wheelchairPassengers} wheelchair.`,
   "No destination recorded. STL, OMA, DSM, ICT, and TUL stay Not verified.",
   "A31 fuel flexibility is still the course figure: 55 minutes.",
 ];

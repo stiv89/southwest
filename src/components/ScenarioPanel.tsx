@@ -1,8 +1,43 @@
 import type { DeskMode } from "../lib/flight-board";
+import { scenario } from "../lib/mock-data";
 import type { DashboardModel } from "../orchestration/dashboard";
 
+const DOCK_PILLS: { id: DeskMode; pill: string }[] = [
+  { id: "normal", pill: "Normal" },
+  { id: "late", pill: "A31 late" },
+  { id: "ground-stop", pill: "Ground stop" },
+];
+
+export function ScenarioDockPills({
+  deskMode,
+  onDeskMode,
+}: {
+  deskMode: DeskMode;
+  onDeskMode: (mode: DeskMode) => void;
+}) {
+  return (
+    <div className="scenario-dock-setup" data-testid="scenario-setup">
+      <div className="scenario-picks scenario-picks--pills" role="group" aria-label="Demo scenario">
+        {DOCK_PILLS.map((mode) => (
+          <button
+            key={mode.id}
+            type="button"
+            className={
+              deskMode === mode.id ? "scenario-pick scenario-pick--pill is-active" : "scenario-pick scenario-pick--pill"
+            }
+            aria-pressed={deskMode === mode.id}
+            data-testid={mode.id === "ground-stop" ? "scenario-ground-stop" : undefined}
+            onClick={() => onDeskMode(mode.id)}
+          >
+            {mode.pill}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ScenarioPanel({
-  variant = "page",
   model,
   outageEnabled,
   controlsLocked,
@@ -14,7 +49,6 @@ export function ScenarioPanel({
   onToggleOutage,
   onRun,
 }: {
-  variant?: "page" | "dock";
   model: DashboardModel;
   outageEnabled: boolean;
   controlsLocked: boolean;
@@ -27,9 +61,10 @@ export function ScenarioPanel({
   onRun: () => void;
 }) {
   const selected = model.selected;
+
   const inner = (
     <>
-      {variant === "page" ? <p className="lede">Same simulated bank. Pick the beat you want to show.</p> : null}
+      <p className="lede">Same simulated bank. Pick the beat you want to show.</p>
       <button
         type="button"
         className={deskMode === "normal" ? "timeline-item flight-card flight-card--active" : "timeline-item flight-card"}
@@ -58,7 +93,9 @@ export function ScenarioPanel({
       </button>
       <button
         type="button"
-        className={deskMode === "ground-stop" ? "timeline-item flight-card flight-card--active" : "timeline-item flight-card"}
+        className={
+          deskMode === "ground-stop" ? "timeline-item flight-card flight-card--active" : "timeline-item flight-card"
+        }
         data-testid="scenario-ground-stop"
         aria-pressed={deskMode === "ground-stop"}
         onClick={() => {
@@ -69,7 +106,9 @@ export function ScenarioPanel({
         <span className="timeline-time">12:20 PM</span>
         <span className="flight-card-body">
           <strong>Flight A31 · DEN → MCI</strong>
-          <span className="timeline-copy">Ground Stop — Day 2 · 158 passengers</span>
+          <span className="timeline-copy">
+            Ground Stop — Day 2 · {scenario.passengers} passengers
+          </span>
         </span>
         <span className="flight-card-badge">{deskMode === "ground-stop" ? "Active" : "Select"}</span>
       </button>
@@ -80,7 +119,10 @@ export function ScenarioPanel({
           <p className="source-line">{selected.sourceLabel}</p>
         </div>
       ) : deskMode === "late" ? (
-        <p className="source-line">A31 is 10 minutes late. Station Ops can confirm the gate change. Dispatch and Customer Service see it after it is confirmed.</p>
+        <p className="source-line">
+          A31 is 10 minutes late. Station Ops can confirm the gate change. Dispatch and Customer Service see it after
+          it is confirmed.
+        </p>
       ) : (
         <p className="empty">The desk is on the normal MCI bank. Choose a disruption when you want the priorities to change.</p>
       )}
@@ -94,21 +136,11 @@ export function ScenarioPanel({
         />
         Simulate tool outage (getDiversionOptions fails)
       </label>
-      <button
-        type="button"
-        className="button primary"
-        data-testid="run-agents"
-        disabled={runDisabled}
-        onClick={onRun}
-      >
+      <button type="button" className="button primary" data-testid="run-agents" disabled={runDisabled} onClick={onRun}>
         {running ? "Running…" : "Run Agents"}
       </button>
     </>
   );
-
-  if (variant === "dock") {
-    return <div className="scenario-dock-controls">{inner}</div>;
-  }
 
   return (
     <section id="scenario" className="card card--panel" aria-labelledby="scenario-heading">

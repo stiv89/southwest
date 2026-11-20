@@ -1,57 +1,62 @@
-import type { DashboardModel } from "../orchestration/dashboard";
+import type { DemoRole } from "../lib/shared-case";
+import type { SimulationState } from "../lib/simulation/types";
+import { IconPassengerDemo } from "./sidebar-icons";
 
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "OP";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+const DESK_ROLE: Record<DemoRole, string> = {
+  "station-ops": "Station Operations",
+  dispatch: "Dispatch",
+  "customer-service": "Customer Service",
+};
+
+function liveStatus(
+  deskMode: "normal" | "late" | "ground-stop",
+  simulation: SimulationState | null,
+): { label: string; tone: "ok" | "watch" | "stop" } {
+  if (deskMode === "ground-stop") return { label: "Ground stop", tone: "stop" };
+  if (simulation?.gateConflict.detected && !simulation.gateConflict.approved) {
+    return { label: "Gate overlap", tone: "watch" };
+  }
+  return { label: "Normal operations", tone: "ok" };
 }
 
 export function Header({
-  model,
-  approver,
   role,
   clock,
   deskMode,
-  onOpenProfile,
+  simulation,
+  onOpenPassengerDemo,
 }: {
-  model: DashboardModel;
-  approver: string;
-  role: string;
+  role: DemoRole;
   clock: string;
   deskMode: "normal" | "late" | "ground-stop";
-  onOpenProfile: () => void;
+  simulation: SimulationState | null;
+  onOpenPassengerDemo: () => void;
 }) {
+  const status = liveStatus(deskMode, simulation);
+
   return (
-    <header className="topbar topbar--open">
-      <div className="topbar-inner">
-        <div>
-          <p className="eyebrow">MCI Operations Desk · {role}</p>
-          <h1>SouthwestAdmin</h1>
-          <p className="header-scenario" data-testid="scenario-label">
-            {model.scenarioLabel}
-          </p>
-        </div>
-        <div className="header-status">
-          <div>
-            <span className="meta-label">Simulated time</span>
-            <strong data-testid="simulated-time">{model.selected ? clock : model.simulatedTime}</strong>
-          </div>
-          <div>
-            <span className="meta-label">Status</span>
-            <strong className={`header-status-value status-${(deskMode === "ground-stop" ? "grounded" : "normal")}`} data-testid="status-indicator">
-              {deskMode === "ground-stop" ? "Grounded" : "Normal"}
-            </strong>
-          </div>
-          <button
-            type="button"
-            className="header-avatar header-avatar--btn"
-            aria-label={`${approver}. Open profile and decision desk.`}
-            onClick={onOpenProfile}
-          >
-            {initials(approver)}
-          </button>
-        </div>
+    <header className="desk-bar">
+      <div className="desk-bar-side">
+        <h1>MCI Operations Desk</h1>
+        <p>{DESK_ROLE[role]}</p>
+      </div>
+      <p className={`desk-bar-status tone-${status.tone}`}>
+        <span className="desk-bar-dot" aria-hidden="true" />
+        <span data-testid="status-indicator">{status.label}</span>
+        <span aria-hidden="true">·</span>
+        <time data-testid="simulated-time">{clock}</time>
+        <small>(Simulated)</small>
+      </p>
+      <div className="desk-bar-side desk-bar-side--end">
+        <button
+          type="button"
+          className="passenger-demo-btn"
+          onClick={onOpenPassengerDemo}
+          data-testid="passenger-demo-btn"
+        >
+          <IconPassengerDemo className="desk-action-icon" />
+          <span>Passenger Demo</span>
+        </button>
       </div>
     </header>
   );

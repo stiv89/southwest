@@ -1,7 +1,84 @@
 {
-  "source": "unavailable",
-  "inventoryKnown": false,
-  "hotels": null,
-  "groundTransport": null,
-  "reason": "Transportation hotels.xlsx was not in the project workspace. Hotel and ground transportation inventory is unknown. Nothing is reserved."
+  "source": "course-workbook",
+  "inventoryKnown": true,
+  "reason": "Classroom snapshot from Hotel Inventory (Southwest_MCI_Disruption_Recovery_Dataset.xlsx) and ground transport rates (Transportation hotels.xlsx). Nothing is reserved or dispatched for A31.",
+  "hotels": {
+    "workbook": "Southwest_MCI_Disruption_Recovery_Dataset.xlsx",
+    "sheet": "Hotel Inventory",
+    "roomsAvailableTotal": 207,
+    "properties": [
+      {
+        "name": "Airport Hotel A",
+        "roomsAvailable": 28,
+        "disruptionRateUsd": 129,
+        "milesFromMci": 4.2,
+        "shuttle": "Yes",
+        "busCapacityPerTrip": 22,
+        "usePreference": "Mixed"
+      },
+      {
+        "name": "Airport Hotel B",
+        "roomsAvailable": 25,
+        "disruptionRateUsd": 119,
+        "milesFromMci": 3.1,
+        "shuttle": "Yes",
+        "busCapacityPerTrip": 42,
+        "usePreference": "Passenger preferred"
+      },
+      {
+        "name": "Airport Hotel C",
+        "roomsAvailable": 21,
+        "disruptionRateUsd": 139,
+        "milesFromMci": 5,
+        "shuttle": "Yes",
+        "busCapacityPerTrip": 23,
+        "usePreference": "Crew preferred"
+      },
+      {
+        "name": "Downtown Hotel D",
+        "roomsAvailable": 35,
+        "disruptionRateUsd": 149,
+        "milesFromMci": 22,
+        "shuttle": "Yes",
+        "busCapacityPerTrip": 24,
+        "usePreference": "Crew preferred"
+      },
+      {
+        "name": "Downtown Hotel E",
+        "roomsAvailable": 29,
+        "disruptionRateUsd": 159,
+        "milesFromMci": 21.5,
+        "shuttle": "Limited",
+        "busCapacityPerTrip": 24,
+        "usePreference": "Passenger preferred"
+      },
+      {
+        "name": "Overland Park Hotel F",
+        "roomsAvailable": 41,
+        "disruptionRateUsd": 109,
+        "milesFromMci": 27,
+        "shuttle": "Limited",
+        "busCapacityPerTrip": 54,
+        "usePreference": "Mixed"
+      },
+      {
+        "name": "Northland Hotel G",
+        "roomsAvailable": 28,
+        "disruptionRateUsd": 125,
+        "milesFromMci": 8.4,
+        "shuttle": "Yes",
+        "busCapacityPerTrip": 40,
+        "usePreference": "Passenger preferred"
+      }
+    ]
+  },
+  "groundTransport": {
+    "workbook": "Transportation hotels.xlsx",
+    "vans16Passenger": 4,
+    "vans8Passenger": 4,
+    "van16RentalUsdPerHour": 400,
+    "van8RentalUsdPerHour": 325,
+    "uberXlContractedUsdPerTrip": 70,
+    "note": "Van counts and contracted rates from the professor sheet; not dispatched for this flight."
+  }
 }

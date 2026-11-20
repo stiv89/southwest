@@ -26,8 +26,12 @@ export function summarizeTool(name: string, value: unknown): string {
       return `${String(value.passengers)} passengers, including ${String(value.wheelchairPassengers)} who need wheelchair assistance.`;
     case "getConnectionImpact":
       return `${String(value.connectingPassengers)} connecting passengers. ${String(value.note)}`;
-    case "getAvailableAssistance":
+    case "getAvailableAssistance": {
+      if (value.inventoryKnown === true && isRecord(value.hotels) && isRecord(value.groundTransport)) {
+        return `${String(value.airportCode)} snapshot: ${String(value.hotels.roomsAvailableTotal)} hotel rooms, ${String(value.groundTransport.vans16Passenger)}×16p and ${String(value.groundTransport.vans8Passenger)}×8p vans (classroom; not reserved).`;
+      }
       return `${String(value.airportCode)} inventoryKnown=${String(value.inventoryKnown)}. ${String(value.reason)}`;
+    }
     case "draftCustomerUpdate":
       return value.sent === false
         ? "Draft prepared and not sent."

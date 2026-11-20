@@ -1,0 +1,142 @@
+:root {
+  --sw-blue: #304cb2;
+  --sw-yellow: #ffb612;
+}
+
+.passenger-shell {
+  min-height: 100dvh;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+  background: linear-gradient(180deg, #0c1224 0%, #1a2748 38%, #eef2f8 38%);
+  color: #0e1628;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.passenger-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.passenger-logo {
+  height: 28px;
+  width: auto;
+  filter: brightness(1.1);
+}
+
+.passenger-demo-tag {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.wallet-banner {
+  background: #fff4d6;
+  border: 1px solid #ffd76a;
+  color: #5c4300;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.wallet-pass {
+  background: #fff;
+  border-radius: 22px;
+  padding: 22px 18px 18px;
+  box-shadow: 0 18px 40px rgba(12, 18, 36, 0.28);
+  margin-bottom: 16px;
+}
+
+.wallet-pass-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 14px;
+  color: #5a6478;
+  margin-bottom: 8px;
+}
+
+.wallet-pass-top strong {
+  font-size: 18px;
+  color: #111827;
+}
+
+.wallet-gate-label {
+  margin: 8px 0 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+}
+
+.wallet-gate {
+  margin: 0;
+  font-size: clamp(64px, 22vw, 92px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: var(--sw-blue);
+}
+
+.wallet-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 18px 0 0;
+}
+
+.wallet-facts dt {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin: 0;
+}
+
+.wallet-facts dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+
+.wallet-connection {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed #d7deea;
+}
+
+.wallet-connection h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin: 0 0 6px;
+}
+
+.wallet-btn {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.wallet-offer {
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px;
+  border: 2px solid var(--sw-yellow);
+}
+
+.wallet-directions {
+  margin-top: 12px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.wallet-directions-svg {
+  width: 100%;
+  height: auto;
+  color: #94a3b8;
+}

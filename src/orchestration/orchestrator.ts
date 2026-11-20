@@ -36,6 +36,7 @@ export interface RunOptions {
   onUpdate?: (snapshot: DemoSnapshot) => void;
   outageTool?: string | null;
   narrate?: NarrateAgent;
+  enabledExtendedAgents?: ExtendedAgentKey[];
 }
 
 export function createInitialSnapshot(): DemoSnapshot {
@@ -580,6 +581,7 @@ export async function runAgents(start: DemoSnapshot, options: RunOptions = {}): 
   };
 
   const extendedResults: AgentResult[] = [];
+  const enabledExtended = new Set(options.enabledExtendedAgents ?? EXTENDED_AGENT_KEYS);
   const extendedRuns: {
     key: ExtendedAgentKey;
     run: () => Generator<AgentEvent, AgentResult>;
@@ -592,6 +594,23 @@ export async function runAgents(start: DemoSnapshot, options: RunOptions = {}): 
 
   for (const item of extendedRuns) {
     const label = EXTENDED_AGENT_LABELS[item.key];
+    if (!enabledExtended.has(item.key)) {
+      snapshot = {
+        ...snapshot,
+        agentSlots: {
+          ...snapshot.agentSlots,
+          [item.key]: {
+            ...snapshot.agentSlots[item.key],
+            runState: "Idle",
+            action: "Skipped in desk settings",
+            toolName: null,
+            toolSummary: null,
+          },
+        },
+      };
+      onUpdate(snapshot);
+      continue;
+    }
     snapshot = {
       ...snapshot,
       agentSlots: {

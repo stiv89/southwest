@@ -1,14 +1,14 @@
 # Course source files
 
-Place the original course workbooks and documents here if you receive them. Do not commit passenger-level personal data.
-
-Expected names from the assignment (not present in this workspace when the MVP was built):
+**Canonical location:** [`public/data/`](../../public/data/) (served as static files and listed in the repo).
 
 | File | Intended use |
 | --- | --- |
-| `Southwest flights - tiers.xlsx` | Flight prioritization, after the real columns are inspected |
-| `Southwest MCI Daily Operating Schedule.docx` | Scheduled MCI operations |
-| `Transportation hotels.xlsx` | Hotel and ground transportation resources |
-| `Southwest_MCI_Disruption_Recovery_Dataset.xlsx` | Disruption and recovery examples |
+| `Southwest_MCI_Disruption_Recovery_Dataset.xlsx` | Aircraft, crew, passenger recovery, capacity, reserves, hotels |
+| `Soutwest flights - tiers.xlsx` | Regional tier / station groupings |
+| `Transportation hotels.xlsx` | Vans, rentals, hotel contracted rates |
+| `Southwest MCI Daily Operating Schedule.docx` | MCI day-of schedule (local; often not committed — `*.docx` in `.gitignore`) |
 
-Until those files are inspected, the demo reads `data/mock/` and labels every simulated value. A missing hotel file is an unknown, not an empty hotel list that can be booked.
+The app reads **`data/mock/`** at build time. Those JSON files are the classroom API for tools. See `public/data/README.md` for how workbooks relate to the Ground Stop demo.
+
+Do not commit passenger-level personal data. Synthetic IDs in the workbook are for class use only.

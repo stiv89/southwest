@@ -46,11 +46,38 @@ export interface DiversionData {
   candidates: DiversionCandidate[];
 }
 
+export interface HotelProperty {
+  name: string;
+  roomsAvailable: number;
+  disruptionRateUsd: number;
+  milesFromMci: number;
+  shuttle: string;
+  busCapacityPerTrip: number;
+  usePreference: string;
+}
+
+export interface AssistanceHotels {
+  workbook: string;
+  sheet: string;
+  roomsAvailableTotal: number;
+  properties: HotelProperty[];
+}
+
+export interface AssistanceGroundTransport {
+  workbook: string;
+  vans16Passenger: number;
+  vans8Passenger: number;
+  van16RentalUsdPerHour: number;
+  van8RentalUsdPerHour: number;
+  uberXlContractedUsdPerTrip: number;
+  note: string;
+}
+
 export interface AssistanceData {
-  source: "unavailable";
-  inventoryKnown: false;
-  hotels: null;
-  groundTransport: null;
+  source: "course-workbook";
+  inventoryKnown: true;
+  hotels: AssistanceHotels;
+  groundTransport: AssistanceGroundTransport;
   reason: string;
 }
 
@@ -169,20 +196,66 @@ function parseDiversion(input: unknown, scenario: ScenarioRecord): DiversionData
   };
 }
 
+function parseHotelProperty(input: unknown): HotelProperty {
+  const record = asRecord(input, "hotel property");
+  return {
+    name: requireString(record, "name"),
+    roomsAvailable: requireNumber(record, "roomsAvailable"),
+    disruptionRateUsd: requireNumber(record, "disruptionRateUsd"),
+    milesFromMci: requireNumber(record, "milesFromMci"),
+    shuttle: requireString(record, "shuttle"),
+    busCapacityPerTrip: requireNumber(record, "busCapacityPerTrip"),
+    usePreference: requireString(record, "usePreference"),
+  };
+}
+
+function parseAssistanceHotels(input: unknown): AssistanceHotels {
+  const record = asRecord(input, "assistance hotels");
+  const rawProperties = record.properties;
+  if (!Array.isArray(rawProperties) || rawProperties.length === 0) {
+    throw new Error("assistance hotels must include at least one property.");
+  }
+  const properties = rawProperties.map(parseHotelProperty);
+  const declaredTotal = requireNumber(record, "roomsAvailableTotal");
+  const summed = properties.reduce((sum, property) => sum + property.roomsAvailable, 0);
+  if (declaredTotal !== summed) {
+    throw new Error("assistance roomsAvailableTotal must match the sum of property roomsAvailable.");
+  }
+  return {
+    workbook: requireString(record, "workbook"),
+    sheet: requireString(record, "sheet"),
+    roomsAvailableTotal: declaredTotal,
+    properties,
+  };
+}
+
+function parseAssistanceGroundTransport(input: unknown): AssistanceGroundTransport {
+  const record = asRecord(input, "assistance ground transport");
+  return {
+    workbook: requireString(record, "workbook"),
+    vans16Passenger: requireNumber(record, "vans16Passenger"),
+    vans8Passenger: requireNumber(record, "vans8Passenger"),
+    van16RentalUsdPerHour: requireNumber(record, "van16RentalUsdPerHour"),
+    van8RentalUsdPerHour: requireNumber(record, "van8RentalUsdPerHour"),
+    uberXlContractedUsdPerTrip: requireNumber(record, "uberXlContractedUsdPerTrip"),
+    note: requireString(record, "note"),
+  };
+}
+
 function parseAssistance(input: unknown): AssistanceData {
   const record = asRecord(input, "assistance");
   const source = requireString(record, "source");
-  if (source !== "unavailable") {
-    throw new Error("Assistance data must stay unavailable until the course hotel file is inspected.");
+  if (source !== "course-workbook") {
+    throw new Error("Assistance data must be labeled course-workbook.");
   }
-  if (record.inventoryKnown !== false) {
-    throw new Error("Assistance inventory cannot be marked known without the course hotel file.");
+  if (record.inventoryKnown !== true) {
+    throw new Error("Assistance inventory must be marked known when course workbook data is loaded.");
   }
   return {
-    source,
-    inventoryKnown: false,
-    hotels: requireUnknown(record, "hotels"),
-    groundTransport: requireUnknown(record, "groundTransport"),
+    source: "course-workbook",
+    inventoryKnown: true,
+    hotels: parseAssistanceHotels(record.hotels),
+    groundTransport: parseAssistanceGroundTransport(record.groundTransport),
     reason: requireString(record, "reason"),
   };
 }

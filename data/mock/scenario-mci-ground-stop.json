@@ -11,14 +11,14 @@
   "aircraftId": "A31",
   "origin": "DEN",
   "airborne": true,
-  "passengers": 158,
-  "connectingPassengers": 42,
-  "wheelchairPassengers": 3,
-  "crewDutyRemaining": "4 hours 20 minutes",
-  "crewDutyMinutes": 260,
-  "crewNote": "Duty time is a course-brief figure. This system does not read a live crew system.",
+  "passengers": 123,
+  "connectingPassengers": 23,
+  "wheelchairPassengers": 2,
+  "crewDutyRemaining": "6 hours 0 minutes",
+  "crewDutyMinutes": 360,
+  "crewNote": "C31 from the course Crew sheet: pilot duty 6.0 hours remaining, legality risk HIGH. Not live crew tracking.",
   "fuelFlexibilityMinutes": 55,
-  "fuelNote": "Verified fuel remaining, burn, and reserve are unknown. The minutes figure is hold/diversion flexibility from the course brief, not a fuel-state clearance.",
+  "fuelNote": "Aircraft A31 lists 62% fuel in the course workbook; verified burn and reserve are unknown. The 55-minute flexibility figure is exercise hold/diversion margin, not a clearance.",
   "alternateAirports": ["STL", "OMA", "DSM", "ICT", "TUL"],
-  "sourceLabel": "Course scenario brief — not live FAA, airline, weather, or passenger data"
+  "sourceLabel": "Ground Stop exercise with F31/A31/C31 passenger and crew figures from Southwest_MCI_Disruption_Recovery_Dataset.xlsx. Airborne DEN→MCI is classroom narrative, not a live feed."
 }

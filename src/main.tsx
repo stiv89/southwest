@@ -1,14 +1,17 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
+import { PassengerApp } from "./passenger/PassengerApp";
 import "./index.css";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Root element is missing.");
 
+const isPassenger = window.location.pathname.startsWith("/passenger");
+
 createRoot(root).render(
   <StrictMode>
-    <App />
+    {isPassenger ? <PassengerApp /> : <App />}
   </StrictMode>,
 );
 

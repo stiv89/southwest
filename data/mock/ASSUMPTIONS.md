@@ -2,18 +2,27 @@
 
 This folder is a classroom stand-in. It is not an airline, FAA, or airport feed.
 
-The course files named in `REQUIREMENTS.md` were not in the workspace when this demo was built:
+The professor’s workbooks live in **`public/data/`** (see `public/data/README.md`). Runtime mock JSON is traced to those files where noted below.
 
-- `Southwest flights - tiers.xlsx`
-- `Southwest MCI Daily Operating Schedule.docx`
-- `Transportation hotels.xlsx`
 - `Southwest_MCI_Disruption_Recovery_Dataset.xlsx`
+- `Soutwest flights - tiers.xlsx` (filename spelling as provided)
+- `Transportation hotels.xlsx`
+- `Southwest MCI Daily Operating Schedule.docx` (local reference; may not be in git)
 
-## What is a course-brief fact
+Regenerate hotel and ground-transport mock data:
 
-`scenario-mci-ground-stop.json` repeats the Day 2, 12:20 PM MCI Ground Stop figures from the assignment: airport, ground stop, A31 airborne from DEN, 158 passengers, 42 connections, 3 wheelchair passengers, 4 hours 20 minutes of crew duty, about 55 minutes of fuel flexibility, and the alternate codes STL, OMA, DSM, ICT, and TUL.
+```bash
+node scripts/import-course-mock.mjs
+```
 
-Those figures are labeled `Course scenario brief`. They are not live telemetry.
+## Ground stop scenario (`scenario-mci-ground-stop.json`)
+
+| Field | Source |
+| --- | --- |
+| Passengers 123, connections 23, wheelchair 2 | Passenger Recovery sheet, row F31 / aircraft A31 |
+| Crew duty 6 hours, C31 note | Crew sheet, crew C31 |
+| Fuel note references 62% fuel | Aircraft sheet, tail A31 |
+| Airborne DEN→MCI, ground stop event, 55 min fuel flexibility, alternates | Classroom Ground Stop exercise narrative (not a single workbook row) |
 
 ## What is deliberately unknown
 
@@ -21,8 +30,6 @@ Those figures are labeled `Course scenario brief`. They are not live telemetry.
 
 Airport names are geographic labels only.
 
-`assistance.json` keeps hotel and ground-transport inventory unknown because the hotel workbook was not available. The customer-service tool reports that gap. It does not invent rooms or shuttles.
+## Assistance (`assistance.json`)
 
-## If the course files show up later
-
-Put them in `data/source/`, inspect the real columns, and replace only the fields you can trace. Do not mark inventory or airport capability as known until that inspection is done.
+Imported from **Hotel Inventory** (207 rooms across seven properties) and **Transportation hotels.xlsx** (van counts and contracted rates). `inventoryKnown` is `true` because the classroom snapshot is loaded, but the customer-service agent still treats rooms and vans as **not reserved** for A31.

@@ -7,4 +7,5 @@ coverage
 
 # Course handouts and personal notes stay on this machine.
 *.pdf
-*.docx
+data/runtime/
+.ngrok-token

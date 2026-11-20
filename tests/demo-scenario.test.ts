@@ -38,11 +38,11 @@ async function runSelected() {
 }
 
 describe("MCI ground stop demo", () => {
-  it("loads the course-brief facts and keeps capability unknown", () => {
-    expect(scenario.passengers).toBe(158);
-    expect(scenario.connectingPassengers).toBe(42);
-    expect(scenario.wheelchairPassengers).toBe(3);
-    expect(scenario.crewDutyRemaining).toBe("4 hours 20 minutes");
+  it("loads workbook-traced facts and keeps diversion capability unknown", () => {
+    expect(scenario.passengers).toBe(123);
+    expect(scenario.connectingPassengers).toBe(23);
+    expect(scenario.wheelchairPassengers).toBe(2);
+    expect(scenario.crewDutyRemaining).toBe("6 hours 0 minutes");
     expect(scenario.fuelFlexibilityMinutes).toBe(55);
     expect(scenario.alternateAirports).toEqual(["STL", "OMA", "DSM", "ICT", "TUL"]);
     expect(getDashboardModel(createInitialSnapshot()).status).toBe("Normal");
@@ -50,7 +50,7 @@ describe("MCI ground stop demo", () => {
     const model = getDashboardModel(selected);
     expect(model.status).toBe("Grounded");
     expect(model.selected?.aircraftId).toBe("A31");
-    expect(model.selected?.passengers).toBe(158);
+    expect(model.selected?.passengers).toBe(123);
     expect(selected.audit[0]?.simulated).toBe(false);
   });
 
@@ -94,7 +94,8 @@ describe("MCI ground stop demo", () => {
     expect(recommendation?.passengerConsequences).toContain(String(impact.wheelchairPassengers));
     expect(recommendation?.unknowns.length).toBeGreaterThan(0);
     expect(recommendation?.requiredAssistance).toContain(String(assistance.inventoryKnown));
-    expect(assistance.inventoryKnown).toBe(false);
+    expect(assistance.inventoryKnown).toBe(true);
+    expect(assistance.hotels?.roomsAvailableTotal).toBe(207);
     expect(snapshot.phase).toBe("awaiting_decision");
     expect(snapshot.decision).toBe("none");
     expect(snapshot.audit.some((event) => event.kind === "tool" && event.simulated)).toBe(true);
@@ -198,7 +199,7 @@ describe("MCI ground stop demo", () => {
     expect(snapshot.opsResult?.options.length).toBeGreaterThan(0);
     expect(snapshot.recommendation?.summary).toContain("Puter flight-operations for A31.");
     expect(snapshot.recommendation?.summary).toContain("Puter customer-service for A31.");
-    expect(snapshot.recommendation?.passengerConsequences).toContain("158");
+    expect(snapshot.recommendation?.passengerConsequences).toContain("123");
     expect(snapshot.audit.some((event) => event.message.includes("Puter.js (gpt-5.4-nano)"))).toBe(true);
   });
 
@@ -228,9 +229,9 @@ describe("MCI ground stop demo", () => {
       {
         flightId: "A31",
         status: "Grounded",
-        passengers: 158,
-        connectingPassengers: 42,
-        wheelchairPassengers: 3,
+        passengers: 123,
+        connectingPassengers: 23,
+        wheelchairPassengers: 2,
         optionLabels: ["Review STL"],
       },
       ctx,

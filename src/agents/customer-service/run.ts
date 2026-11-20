@@ -112,7 +112,17 @@ export function* runCustomerService(request: CustomerServiceRequest): Generator<
   if (!assistance) throw new Error("Customer service ended without an assistance result.");
   sources.push(assistance.source);
   unknowns.push(assistance.reason);
-  if (!assistance.inventoryKnown) {
+  if (assistance.inventoryKnown) {
+    knownFacts.push(
+      `Classroom hotel snapshot: ${assistance.hotels.roomsAvailableTotal} rooms available across ${assistance.hotels.properties.length} MCI-area properties (not reserved).`,
+    );
+    knownFacts.push(
+      `Classroom ground transport snapshot: ${assistance.groundTransport.vans16Passenger} sixteen-passenger vans and ${assistance.groundTransport.vans8Passenger} eight-passenger vans on the professor sheet (not dispatched).`,
+    );
+    unknowns.push(
+      "Workbook inventory is a classroom snapshot. No rooms or vehicles are reserved for this diversion decision.",
+    );
+  } else {
     unknowns.push(
       `Hotel inventory at ${assistance.airportCode} is unknown. Ground transportation at ${assistance.airportCode} is unknown.`,
     );
@@ -183,7 +193,9 @@ export function* runCustomerService(request: CustomerServiceRequest): Generator<
   });
   options.push({
     id: "assistance-unknown",
-    label: `Do not confirm hotels or ground transport at ${assistance.airportCode}`,
+    label: assistance.inventoryKnown
+      ? `Review classroom hotel and transport snapshot at ${assistance.airportCode} before confirming anything`
+      : `Do not confirm hotels or ground transport at ${assistance.airportCode}`,
     airport: assistance.airportCode,
     risks: [assistance.reason],
     tradeoffs: [`inventoryKnown=${String(assistance.inventoryKnown)}.`],

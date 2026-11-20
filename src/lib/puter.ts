@@ -1,4 +1,9 @@
-import { PUTER_MODEL, PUTER_SCRIPT_URL } from "./constants";
+import { PUTER_SCRIPT_URL } from "./constants";
+import { loadDeskPreferences } from "./desk-preferences";
+
+export function getPuterModel(): string {
+  return loadDeskPreferences().puterModel;
+}
 import type { AgentResult } from "../types/contracts";
 
 export interface AgentNarrative {
@@ -128,7 +133,7 @@ export async function intakeProblemWithPuter(
       {
         role: "system",
         content:
-          "You are the SouthwestAdmin classroom intake assistant. The user describes an operational problem. Acknowledge it in 2-4 short sentences. Map disruptions at MCI, ground stops, or flight A31 to the built-in Ground Stop demo scenario and tell them to use Run Agents after loading it. Never claim authority to divert, dispatch, message passengers, or declare safety. If facts are missing, say so. Reply in plain text, not JSON.",
+          "You are Ops Intelligence for a Southwest classroom dispatch simulation (not real operations). Reply in plain text only — no JSON. Use at most 3 short sentences. If they ask how the demo, approval flow, or roles work, answer at a high level for class discussion only (no live policy). If the issue matches MCI, a ground stop, or flight A31 from DEN, say the Ground Stop demo is loading and agents are starting automatically. Otherwise acknowledge and ask one clarifying question or suggest MCI / A31 to run the scenario. Never claim authority to divert, dispatch, message passengers, or declare safety. Say when facts are missing.",
       },
       {
         role: "user",
@@ -140,7 +145,7 @@ export async function intakeProblemWithPuter(
         }),
       },
     ],
-    { model: PUTER_MODEL, temperature: 0.35, normalize: true },
+    { model: getPuterModel(), temperature: 0.35, normalize: true },
   );
   const text = textFrom(response);
   if (!text) throw new Error("Puter.js returned an empty intake response.");
@@ -180,9 +185,9 @@ export async function narrateWithPuter(result: AgentResult): Promise<AgentNarrat
         }),
       },
     ],
-    { model: PUTER_MODEL, temperature: 0.2, normalize: true },
+    { model: getPuterModel(), temperature: 0.2, normalize: true },
   );
   const narrative = parseNarrative(textFrom(response));
   if (!narrative) return null;
-  return { ...narrative, model: PUTER_MODEL };
+  return { ...narrative, model: getPuterModel() };
 }

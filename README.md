@@ -35,7 +35,7 @@ If Puter sign-in is cancelled, the recommendation stays the one built directly f
 
 Passenger counts, crew duty, fuel flexibility, and the alternate codes come from the course brief in `data/mock/scenario-mci-ground-stop.json`. They are labeled as scenario facts, not live airline data.
 
-Diversion capability and hotel inventory are unknown on purpose. The course workbooks were not in this repository. See `data/mock/ASSUMPTIONS.md`.
+Diversion capability and hotel inventory stay **unknown in the tools** on purpose (classroom guardrails). Professor workbooks are in **`public/data/`**; the app still reads traced fields from `data/mock/`. See `public/data/README.md` and `data/mock/ASSUMPTIONS.md`.
 
 Puter (`gpt-5.4-nano`) only writes the narrative after the tools return. It cannot mark an option safe, and approval is still required before any simulated outcome is recorded.
 
@@ -49,8 +49,10 @@ src/components/        Screens: RoleHome, CaseDesk, agents, decision, audit
 assets/brand/          Original logo and app icon
 public/brand/          Logo served in the sidebar
 public/icons/          Favicon and install icons
-data/mock/             Labeled classroom data
-data/source/           Place for local course files; not published here
+data/mock/             Labeled classroom JSON (what the app imports)
+data/source/           Index pointing at course files
+public/data/           Professor workbooks (.xlsx) and local schedule (.docx)
+scripts/               Optional helpers (e.g. summarize-course-data.mjs)
 ```
 
 ## License
